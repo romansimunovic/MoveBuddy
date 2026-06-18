@@ -90,4 +90,8 @@ public class ActivityService {
 
         activityRepository.delete(activity);
     }
+
+    public List<Activity> getAllActivities() {
+    return activityRepository.findAll();
+}
 }

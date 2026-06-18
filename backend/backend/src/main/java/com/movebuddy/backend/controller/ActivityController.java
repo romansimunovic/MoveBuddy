@@ -37,6 +37,12 @@ public class ActivityController {
         return activityService.getActivitiesByUser(userId);
     }
 
+    @GetMapping
+public ResponseEntity<List<Activity>> getAllActivities() {
+    List<Activity> activities = activityService.getAllActivities(); // ili kako ti se već zove metoda u servisu
+    return ResponseEntity.ok(activities);
+}
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteActivity(@PathVariable Long id) {
         activityService.deleteActivity(id);
