@@ -1,11 +1,10 @@
 package com.movebuddy.backend.controller;
 
-import com.movebuddy.backend.dto.UserRequestDTO;
+import com.movebuddy.backend.dto.UpdateUserRequestDTO;
 import com.movebuddy.backend.model.User;
 import com.movebuddy.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -34,17 +33,17 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserRequestDTO dto) {
-        User savedUser = userService.createUser(dto);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequestDTO dto) {
+        User updatedUser = userService.updateUser(id, dto);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Korisnik i sve njegove pripadajuće aktivnosti uspješno su uklonjeni.");
+        response.put("message", "Korisnički profil i sve pripadajuće aktivnosti su uspješno uklonjeni.");
         return ResponseEntity.ok(response);
     }
 }

@@ -1,6 +1,7 @@
 package com.movebuddy.backend.service;
 
 import com.movebuddy.backend.dto.ActivityRequestDTO;
+import com.movebuddy.backend.dto.UpdateActivityRequestDTO;
 import com.movebuddy.backend.model.Activity;
 import com.movebuddy.backend.model.User;
 import com.movebuddy.backend.repository.ActivityRepository;
@@ -24,9 +25,8 @@ public class ActivityService {
     @Transactional
     public Activity createActivity(ActivityRequestDTO dto) {
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Nemoguće dodati aktivnost. Korisnik s ID-jem " + dto.getUserId() + " ne postoji."));
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik s ID-jem " + dto.getUserId() + " ne postoji."));
 
-        // Formula izračuna: 1 minuta = 10 bodova
         int computedPoints = dto.getDuration() * 10;
 
         Activity activity = Activity.builder()
@@ -38,8 +38,35 @@ public class ActivityService {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        // Ažuriranje i spremanje korisnikovih bodova
         user.setTotalPoints(user.getTotalPoints() + computedPoints);
+        userRepository.save(user);
+
+        return activityRepository.save(activity);
+    }
+
+    @Transactional
+    public Activity updateActivity(Long id, UpdateActivityRequestDTO dto) {
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Aktivnost s ID-jem " + id + " ne postoji."));
+
+        User user = userRepository.findById(activity.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik ove aktivnosti više ne postoji."));
+
+        // Oduzimamo stare bodove ove aktivnosti iz ukupnog zbroja korisnika
+        int oldPoints = activity.getPoints();
+        int currentPointsWithoutActivity = user.getTotalPoints() - oldPoints;
+
+        // Računamo nove bodove prema izmijenjenom trajanju
+        int newComputedPoints = dto.getDuration() * 10;
+
+        // Ažuriramo aktivnost
+        activity.setActivityType(dto.getActivityType());
+        activity.setDuration(dto.getDuration());
+        activity.setDistance(dto.getDistance());
+        activity.setPoints(newComputedPoints);
+
+        // Dodajemo nove bodove korisniku (pazimo da ne ode ispod 0)
+        user.setTotalPoints(Math.max(0, currentPointsWithoutActivity + newComputedPoints));
         userRepository.save(user);
 
         return activityRepository.save(activity);
@@ -57,7 +84,6 @@ public class ActivityService {
 
         User user = userRepository.findById(activity.getUserId()).orElse(null);
         if (user != null) {
-            // Osiguravamo da bodovi nikad ne odu u minus prilikom brisanja aktivnosti
             user.setTotalPoints(Math.max(0, user.getTotalPoints() - activity.getPoints()));
             userRepository.save(user);
         }

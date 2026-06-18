@@ -1,6 +1,7 @@
 package com.movebuddy.backend.controller;
 
 import com.movebuddy.backend.dto.ActivityRequestDTO;
+import com.movebuddy.backend.dto.UpdateActivityRequestDTO;
 import com.movebuddy.backend.model.Activity;
 import com.movebuddy.backend.service.ActivityService;
 import jakarta.validation.Valid;
@@ -23,6 +24,12 @@ public class ActivityController {
     public ResponseEntity<Activity> createActivity(@Valid @RequestBody ActivityRequestDTO dto) {
         Activity created = activityService.createActivity(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Activity> updateActivity(@PathVariable Long id, @Valid @RequestBody UpdateActivityRequestDTO dto) {
+        Activity updated = activityService.updateActivity(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/user/{userId}")
