@@ -1,15 +1,9 @@
 package com.movebuddy.backend.controller;
 
 import com.movebuddy.backend.model.Activity;
-import com.movebuddy.backend.repository.ActivityRepository;
+import com.movebuddy.backend.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -17,21 +11,20 @@ import java.util.List;
 public class ActivityController {
 
     @Autowired
-    private ActivityRepository activityRepository;
+    private ActivityService activityService;
 
-    // 1. Ruta za spremanje nove aktivnosti: POST /api/activities
     @PostMapping
     public Activity createActivity(@RequestBody Activity activity) {
-        // Jednostavna logika za bodove: 1 minuta trčanja/hodanja = 10 bodova
-        if (activity.getPoints() == null) {
-            activity.setPoints(activity.getDuration() * 10);
-        }
-        return activityRepository.save(activity);
+        return activityService.createActivity(activity);
     }
 
-    // 2. Ruta za dohvaćanje svih aktivnosti određenog korisnika: GET /api/activities/user/{userId}
     @GetMapping("/user/{userId}")
     public List<Activity> getActivitiesByUser(@PathVariable Long userId) {
-        return activityRepository.findByUserId(userId);
+        return activityService.getActivitiesByUser(userId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteActivity(@PathVariable Long id) {
+        activityService.deleteActivity(id);
     }
 }

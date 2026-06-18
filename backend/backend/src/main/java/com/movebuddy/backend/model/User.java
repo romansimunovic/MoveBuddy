@@ -1,22 +1,23 @@
 package com.movebuddy.backend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
-@Table(name = "users") // 'user' je rezervirana riječ u Postgresu, pa je 'users' sigurnije
-@Data
+@Table(name = "users")
+@Getter 
+@Setter 
+@NoArgsConstructor 
+@AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    private String name;
     private String email;
 
-    @Column(nullable = false)
-    private String name;
-
-    // Ovdje kasnije lako dodamo lozinku, uloge (ROLES), bodove itd.
+    // Sustav bodovanja - kreće od 0
+    private Integer totalPoints = 0;
 }

@@ -1,14 +1,9 @@
 package com.movebuddy.backend.controller;
 
 import com.movebuddy.backend.model.User;
-import com.movebuddy.backend.repository.UserRepository;
+import com.movebuddy.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -16,17 +11,30 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    // Ruta za dohvaćanje svih korisnika: GET /api/users
     @GetMapping
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userService.getAllUsers();
     }
 
-    // Ruta za kreiranje novog korisnika: POST /api/users
+    @GetMapping("/leaderboard")
+    public List<User> getLeaderboard() {
+        return userService.getLeaderboard();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
+
     @PostMapping
     public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+        return userService.createUser(user);
+    }
+
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User user) {
+        return userService.updateUser(id, user);
     }
 }
