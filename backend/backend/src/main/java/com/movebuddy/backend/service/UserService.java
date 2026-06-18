@@ -1,10 +1,13 @@
 package com.movebuddy.backend.service;
 
 import com.movebuddy.backend.model.User;
+import com.movebuddy.backend.model.Activity;
 import com.movebuddy.backend.repository.UserRepository;
+import com.movebuddy.backend.repository.ActivityRepository;
 import com.movebuddy.backend.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -12,6 +15,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -33,10 +39,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(Long id, User userDetails) {
+    @Transactional
+    public void deleteUser(Long id) {
         User user = getUserById(id);
-        user.setName(userDetails.getName());
-        user.setEmail(userDetails.getEmail());
-        return userRepository.save(user);
+        
+        // Sigurnosni korak: Prvo obriši sve aktivnosti ovog korisnika da ne ostanu siročad u bazi
+        List<Activity> userActivities = activityRepository.findByUserId(id);
+        activityRepository.deleteAll(userActivities);
+        
+        // Sada sigurno brišemo korisnika
+        userRepository.delete(user);
     }
 }
