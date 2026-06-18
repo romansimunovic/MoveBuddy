@@ -5,17 +5,27 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtTokenProvider {
 
-    private final String JWT_SECRET = "MojSuperTajniKljucKojiMoraImatiBarem256BitaZaZnakoveZatoJeDugacak";
-    private final long JWT_EXPIRATION_MS = 86400000; // 24 sata
+    // Spring će automatski ubaciti vrijednost iz application.properties ili environment variable
+    @Value("${JWT_SECRET_KEY}")
+    private String jwtSecret;
 
-    private final Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+    private final long JWT_EXPIRATION_MS = 86400000; // 24 sata
+    private Key key;
+
+    // @PostConstruct osigurava da se ključ generira nakon što Spring učita vrijednost
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
 
     public String generateToken(String email) {
         Date now = new Date();

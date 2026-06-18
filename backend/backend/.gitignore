@@ -49,3 +49,12 @@ Desktop.ini
 # --- Logovi i baze ---
 *.log
 .elasticbeanstalk/
+
+# --- Sigurnost i varijable okruženja ---
+# Ne želimo da se lokalni fajlovi sa tajnim podacima uploadaju
+application-local.properties
+.env
+
+*.log
+.gradle/
+build/
