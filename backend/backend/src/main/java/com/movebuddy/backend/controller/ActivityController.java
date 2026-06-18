@@ -1,5 +1,6 @@
 package com.movebuddy.backend.controller;
 
+import com.movebuddy.backend.dto.ActivityRequestDTO;
 import com.movebuddy.backend.model.Activity;
 import com.movebuddy.backend.service.ActivityService;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -18,8 +20,8 @@ public class ActivityController {
     private ActivityService activityService;
 
     @PostMapping
-    public ResponseEntity<Activity> createActivity(@Valid @RequestBody Activity activity) {
-        Activity created = activityService.createActivity(activity);
+    public ResponseEntity<Activity> createActivity(@Valid @RequestBody ActivityRequestDTO dto) {
+        Activity created = activityService.createActivity(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -31,8 +33,8 @@ public class ActivityController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteActivity(@PathVariable Long id) {
         activityService.deleteActivity(id);
-        Map<String, String> response = new java.util.HashMap<>();
-        response.put("message", "Aktivnost uspješno obrisana, a bodovi korisnika su ažurirani.");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Aktivnost je uklonjena, a bodovni saldo korisnika ažuriran.");
         return ResponseEntity.ok(response);
     }
 }

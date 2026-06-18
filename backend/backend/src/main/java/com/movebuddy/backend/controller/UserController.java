@@ -1,5 +1,6 @@
 package com.movebuddy.backend.controller;
 
+import com.movebuddy.backend.dto.UserRequestDTO;
 import com.movebuddy.backend.model.User;
 import com.movebuddy.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -34,8 +35,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User savedUser = userService.createUser(user);
+    public ResponseEntity<User> createUser(@Valid @RequestBody UserRequestDTO dto) {
+        User savedUser = userService.createUser(dto);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
@@ -43,7 +44,7 @@ public class UserController {
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Korisnik i sve njegove aktivnosti uspješno su obrisani.");
+        response.put("message", "Korisnik i sve njegove pripadajuće aktivnosti uspješno su uklonjeni.");
         return ResponseEntity.ok(response);
     }
 }

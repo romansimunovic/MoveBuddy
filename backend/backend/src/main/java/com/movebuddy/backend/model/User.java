@@ -1,8 +1,6 @@
 package com.movebuddy.backend.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -11,20 +9,19 @@ import lombok.*;
 @Setter 
 @NoArgsConstructor 
 @AllArgsConstructor
+@Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Ime korisnika ne može biti prazno")
+    @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "Email je obavezan")
-    @Email(message = "Email mora biti u ispravnom formatu (npr. ime@domena.com)")
     @Column(nullable = false, unique = true)
     private String email;
 
-    // Sustav bodovanja - kreće od 0
+    @Column(nullable = false)
     private Integer totalPoints = 0;
 }

@@ -1,5 +1,6 @@
 package com.movebuddy.backend.service;
 
+import com.movebuddy.backend.dto.ActivityRequestDTO;
 import com.movebuddy.backend.model.Activity;
 import com.movebuddy.backend.model.User;
 import com.movebuddy.backend.repository.ActivityRepository;
@@ -8,6 +9,7 @@ import com.movebuddy.backend.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,25 +22,30 @@ public class ActivityService {
     private UserRepository userRepository;
 
     @Transactional
-public Activity createActivity(Activity activity) {
-    
-    User user = userRepository.findById(activity.getUserId())
-            .orElseThrow(() -> new ResourceNotFoundException("Nemoguće dodati aktivnost. Korisnik s ID-jem " + activity.getUserId() + " ne postoji."));
+    public Activity createActivity(ActivityRequestDTO dto) {
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Nemoguće dodati aktivnost. Korisnik s ID-jem " + dto.getUserId() + " ne postoji."));
 
-    
-    int activityPoints = (activity.getPoints() == null) ? (activity.getDuration() * 10) : activity.getPoints();
-    activity.setPoints(activityPoints);
+        // Formula izračuna: 1 minuta = 10 bodova
+        int computedPoints = dto.getDuration() * 10;
 
-    
-    int currentTotalPoints = (user.getTotalPoints() == null) ? 0 : user.getTotalPoints();
+        Activity activity = Activity.builder()
+                .activityType(dto.getActivityType())
+                .duration(dto.getDuration())
+                .distance(dto.getDistance())
+                .points(computedPoints)
+                .userId(dto.getUserId())
+                .timestamp(LocalDateTime.now())
+                .build();
 
+        // Ažuriranje i spremanje korisnikovih bodova
+        user.setTotalPoints(user.getTotalPoints() + computedPoints);
+        userRepository.save(user);
 
-    user.setTotalPoints(currentTotalPoints + activityPoints);
-    userRepository.save(user);
+        return activityRepository.save(activity);
+    }
 
-    return activityRepository.save(activity);
-}
-
+    @Transactional(readOnly = true)
     public List<Activity> getActivitiesByUser(Long userId) {
         return activityRepository.findByUserId(userId);
     }
@@ -50,7 +57,7 @@ public Activity createActivity(Activity activity) {
 
         User user = userRepository.findById(activity.getUserId()).orElse(null);
         if (user != null) {
-            // Oduzmi bodove korisniku za obrisanu aktivnost (pazi da ne ode ispod 0)
+            // Osiguravamo da bodovi nikad ne odu u minus prilikom brisanja aktivnosti
             user.setTotalPoints(Math.max(0, user.getTotalPoints() - activity.getPoints()));
             userRepository.save(user);
         }
