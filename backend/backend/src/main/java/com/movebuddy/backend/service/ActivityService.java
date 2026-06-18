@@ -20,22 +20,24 @@ public class ActivityService {
     private UserRepository userRepository;
 
     @Transactional
-    public Activity createActivity(Activity activity) {
-        // Provjeri postoji li korisnik uopće u sustavu
-        User user = userRepository.findById(activity.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Nemoguće dodati aktivnost. Korisnik s ID-jem " + activity.getUserId() + " ne postoji."));
+public Activity createActivity(Activity activity) {
+    
+    User user = userRepository.findById(activity.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("Nemoguće dodati aktivnost. Korisnik s ID-jem " + activity.getUserId() + " ne postoji."));
 
-        // Izračunaj bodove ako nisu poslani (1 minuta = 10 bodova)
-        if (activity.getPoints() == null) {
-            activity.setPoints(activity.getDuration() * 10);
-        }
+    
+    int activityPoints = (activity.getPoints() == null) ? (activity.getDuration() * 10) : activity.getPoints();
+    activity.setPoints(activityPoints);
 
-        // Automatsko ažuriranje ukupnih bodova korisnika
-        user.setTotalPoints(user.getTotalPoints() + activity.getPoints());
-        userRepository.save(user);
+    
+    int currentTotalPoints = (user.getTotalPoints() == null) ? 0 : user.getTotalPoints();
 
-        return activityRepository.save(activity);
-    }
+
+    user.setTotalPoints(currentTotalPoints + activityPoints);
+    userRepository.save(user);
+
+    return activityRepository.save(activity);
+}
 
     public List<Activity> getActivitiesByUser(Long userId) {
         return activityRepository.findByUserId(userId);
