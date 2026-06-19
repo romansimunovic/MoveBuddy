@@ -41,6 +41,13 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Korisnik s ID-jem " + id + " ne postoji."));
     }
 
+    // NOVO: Dodana metoda koja nam očajnički treba u AuthControlleru za Login!
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik s emailom " + email + " ne postoji."));
+    }
+
     @Transactional
     public User registerUser(RegisterRequestDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -50,7 +57,7 @@ public class UserService {
         User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword())) // Lozinka se sprema kriptirana
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .totalPoints(0)
                 .build();
         return userRepository.save(user);

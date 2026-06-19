@@ -1,76 +1,76 @@
-package com.movebuddy.backend.model;
+    package com.movebuddy.backend.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection;
-import java.util.List;
+    import jakarta.persistence.*;
+    import lombok.*;
+    import org.springframework.security.core.GrantedAuthority;
+    import org.springframework.security.core.authority.SimpleGrantedAuthority;
+    import org.springframework.security.core.userdetails.UserDetails;
+    import java.util.Collection;
+    import java.util.List;
 
-@Entity
-@Table(name = "users")
-@Getter 
-@Setter 
-@NoArgsConstructor 
-@AllArgsConstructor
-@Builder
-public class User implements UserDetails {
+    @Entity
+    @Table(name = "users")
+    @Getter 
+    @Setter 
+    @NoArgsConstructor 
+    @AllArgsConstructor
+    @Builder
+    public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    @Column(nullable = false)
-    private String name;
+        @Column(nullable = false)
+        private String name;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+        @Column(nullable = false, unique = true)
+        private String email;
 
-    @Column(nullable = false)
-    private String password;
+        @Column(nullable = false)
+        private String password;
 
-    /* * @Builder.Default osigurava da Lombokov builder ne ignorira zadani '0' 
-     * prilikom kreiranja novog korisnika i rješava VS Code warning.
-     */
-    @Builder.Default
-    @Column(nullable = false)
-    private Integer totalPoints = 0;
+        /* * @Builder.Default osigurava da Lombokov builder ne ignorira zadani '0' 
+        * prilikom kreiranja novog korisnika i rješava VS Code warning.
+        */
+        @Builder.Default
+        @Column(nullable = false)
+        private Integer totalPoints = 0;
 
-    @Column(name = "push_token")
-    private String pushToken;
+        @Column(name = "push_token")
+        private String pushToken;
 
-    // ===================================================
-    //       Spring Security integracija (UserDetails)
-    // ===================================================
+        // ===================================================
+        //       Spring Security integracija (UserDetails)
+        // ===================================================
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
+        @Override
+        public String getUsername() {
+            return this.email; // Email koristimo kao jedinstveno korisničko ime za prijavu
+        }
+
+        @Override
+        public boolean isAccountNonExpired() { 
+            return true; 
+        }
+
+        @Override
+        public boolean isAccountNonLocked() { 
+            return true; 
+        }
+
+        @Override
+        public boolean isCredentialsNonExpired() { 
+            return true; 
+        }
+
+        @Override
+        public boolean isEnabled() { 
+            return true; 
+        }
     }
-
-    @Override
-    public String getUsername() {
-        return this.email; // Email koristimo kao jedinstveno korisničko ime za prijavu
-    }
-
-    @Override
-    public boolean isAccountNonExpired() { 
-        return true; 
-    }
-
-    @Override
-    public boolean isAccountNonLocked() { 
-        return true; 
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() { 
-        return true; 
-    }
-
-    @Override
-    public boolean isEnabled() { 
-        return true; 
-    }
-}
