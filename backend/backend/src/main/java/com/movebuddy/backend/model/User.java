@@ -30,10 +30,20 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    /* * @Builder.Default osigurava da Lombokov builder ne ignorira zadani '0' 
+     * prilikom kreiranja novog korisnika i rješava VS Code warning.
+     */
+    @Builder.Default
     @Column(nullable = false)
     private Integer totalPoints = 0;
 
-    // Spring Security integracija metoda
+    @Column(name = "push_token")
+    private String pushToken;
+
+    // ===================================================
+    //       Spring Security integracija (UserDetails)
+    // ===================================================
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -45,14 +55,22 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() { 
+        return true; 
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() { 
+        return true; 
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() { 
+        return true; 
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() { 
+        return true; 
+    }
 }

@@ -1,23 +1,78 @@
-# MoveBuddy - Casual Social Wellness Platform
+### Kako dodati datoteku u projekt:
 
-MoveBuddy is a mobile-first Progressive Web App (PWA) designed to combat youth social isolation and physical inactivity by transforming daily movement into a gamified, community-driven social experience. The platform leverages lightweight web technologies to connect young people for low-pressure, localized outdoor activities like walking and cycling, eliminating the friction of native app stores and performance-heavy fitness tracking.
+U mapi `backend/backend` kreiraj novu datoteku pod nazivom `README.md` i u nju kopiraj sav sadržaj iz koda ispod.
 
-## Software Architecture Overview
+```markdown
+# MoveBuddy Backend 🚀
 
-The application utilizes a decoupled monorepo architecture engineered for high scalability, rapid deployment, and data privacy compliance.
+Ovo je backend dio **MoveBuddy** aplikacije, izgrađen pomoću **Spring Boot** (v3.5.15) i **Java 17** tehnologija. Sustav koristi **PostgreSQL** bazu podataka i osiguran je pomoću **Spring Security** i **JWT (JSON Web Token)** mehanizama autorizacije.
 
-The frontend client is built as a Progressive Web App using responsive components optimized for mobile viewports, ensuring cross-platform capability with a single codebase. It interfaces with device-level geolocation utilities to facilitate localized matchmaking without persistently tracking user footprints.
+---
 
-The backend service is powered by a robust framework handling secure user authentication, proximity-matching algorithms, and gamification logic. It provides a RESTful API layer that manages secure connections and transaction logic for reward redemptions.
+## 🛠️ Preduvjeti
 
-The persistence layer relies on a relational database system optimized with spatial extensions to handle location-based queries efficiently, ensuring rapid indexing of nearby active community groups.
+Prije nego što pokreneš aplikaciju, provjeri imaš li instalirano sljedeće na svom računalu:
+* **Java Development Kit (JDK) 17**
+* **PostgreSQL** baza podataka (i pokrenut lokalni server)
+* **Maven** (ugrađen kroz `./mvnw` wrapper unutar projekta)
 
-## Core System Features
+---
 
-The platform operates through three unified service engines designed to maximize user retention and prevent ecosystem bypass.
+## 🔒 Lokalna Konfiguracija (Sigurnost na prvom mjestu)
 
-The Proximity Discovery Engine computes anonymous neighborhood clusters, allowing users to discover and join active walking or cycling groups within a localized radius based on real-time availability.
+Zbog sigurnosnih razloga, tajni ključevi, lozinke baze i osjetljivi podaci **nisu** dio repozitorija i nalaze se u `.gitignore`. 
 
-The Gamification & Achievement Ledger tracks individual contributions to collective milestones, distributing social wellness points upon verified activity completion.
+Za lokalni razvoj koristi se profil `local`. Unutar mape `backend/backend/src/main/resources/` kreiraj datoteku:
+📄 `application-local.properties`
 
-The Reward Redemption Module manages digital vouchers and integration webhooks with local brand partners, enabling users to exchange accumulated points for tangible local incentives.
+Unutar nje definiraj svoje lokalne varijable (prilagodi podatke za bazu i JWT ključ):
+
+```properties
+# Konfiguracija PostgreSQL baze podataka
+spring.datasource.url=jdbc:postgresql://localhost:5123/movebuddy
+spring.datasource.username=tvoj_username
+spring.datasource.password=tvoja_lozinka
+spring.jpa.hibernate.ddl-auto=update
+
+# JWT Sigurnost (Ključ mora imati barem 256 bita / 32+ znakova)
+JWT_SECRET_KEY=mojasupertajnaisigurnasifrazamovebuddyaplikaciju1234567890abcdef
+
+```
+
+> ⚠️ **Važno:** Nikada nemoj dodavati `application-local.properties` ili `.env` datoteke na GitHub repozitorij!
+
+---
+
+## 🏃‍♂️ Pokretanje Aplikacije
+
+Aplikaciju možeš pokrenuti na dva načina, ovisno o tome što ti više odgovara u tom trenutku:
+
+### Opcija 1: Putem PowerShell terminala (Preporučeno)
+
+Otvori terminal, pozicioniraj se u mapu `backend/backend` i pokreni aplikaciju uz eksplicitno aktiviranje lokalnog profila pod navodnicima:
+
+```powershell
+./mvnw spring-boot:run "-Dspring-boot.run.profiles=local"
+
+```
+
+### Opcija 2: Putem VS Code sučelja (Run and Debug)
+
+Ako želiš koristiti debugiranje unutar VS Code-a:
+
+1. U VS Code-u idi na `File -> Open Folder` i otvori isključivo mapu `backend/backend`.
+2. Pritisni tipku **`F5`** ili klikni na ikonu bube s trokutićem (*Run and Debug*) s lijeve strane.
+3. VS Code će automatski učitati konfiguraciju iz `.vscode/launch.json` i podići aplikaciju s ispravnim varijablama.
+
+Kada u terminalu vidiš poruku `Tomcat initialized with port 8080 (http)`, aplikacija uspješno radi u pozadini.
+
+---
+
+## 📡 Integracija s Android Emulatorom
+
+Kada pokrećeš React Native frontend na Android emulatoru, emulator tvoje računalo ne vidi kao `localhost`, već kao vanjski server.
+
+U frontend konfiguraciji (`axiosConfig.js` ili slično), osnovni URL za slanje zahtjeva prema ovom backendu mora biti postavljen na ugrađeni Android IP trik:
+
+```javascript
+baseURL: '[http://10.0.2.2:8080/api](http://10.0.2.2:8080/api)'
